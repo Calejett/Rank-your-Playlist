@@ -1,5 +1,5 @@
 const clientId = "0f9c44ae56e146fdba5d8a59baca553d";
-const redirectUri = "http://127.0.0.1:5175";
+const redirectUri = "https://calejett.github.io/Rank-your-Playlist/";
 
 const scopes = [
   "playlist-read-private",
