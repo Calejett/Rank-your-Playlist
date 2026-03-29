@@ -99,6 +99,7 @@ async function redirectToSpotifyLogin() {
   params.append("scope", scopes.join(" "));
   params.append("code_challenge_method", "S256");
   params.append("code_challenge", challenge);
+  params.append("show_dialog", "true");
 
   window.location.href =
     `https://accounts.spotify.com/authorize?${params.toString()}`;
