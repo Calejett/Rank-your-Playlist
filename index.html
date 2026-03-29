@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Playlist Ranker</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: #111;
+  min-height: 100vh;
+  background:
+    url("https://www.transparenttextures.com/patterns/crumpled-paper.png") repeat,
+    #f5f5f5;
+}
+
+.left-panel,
+.right-panel {
+  background: transparent;
+}
+
+.side-box {
+  border: 4px solid #1597f5;
+  background: rgba(233, 233, 233, 0.75);
+  height: calc(100vh - 28px);
+  padding: 14px;
+  overflow-y: auto;
+}
+
+#playlistList li,
+#rankingList li {
+  margin-bottom: 10px;
+  border: 2px solid #1597f5;
+  background: rgba(255, 255, 255, 0.82);
+  padding: 10px;
+}
+    .app {
+      display: grid;
+      grid-template-columns: 58% 42%;
+      min-height: 100vh;
+    }
+
+    .left-panel {
+      border-right: 3px solid #111;
+      padding: 16px 20px 24px;
+      position: relative;
+    }
+
+    .right-panel {
+      padding: 14px;
+    }
+
+    .top-row {
+      display: grid;
+      grid-template-columns: 1fr 220px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .title-description {
+      display: flex;
+      align-items: flex-end;
+      gap: 22px;
+      border-bottom: 3px solid red;
+      padding-bottom: 10px;
+      min-height: 78px;
+    }
+
+    .title-description h1 {
+      margin: 0;
+      font-size: 3rem;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    .title-description p {
+      margin: 0;
+      font-size:  1.5rem;
+      line-height: 1;
+      font-weight: 400;
+    }
+
+    .top-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .top-buttons button {
+      border: 3px solid #1db954;
+      background: #fff;
+      padding: 12px 14px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .workspace {
+      position: relative;
+      padding-top: 18px;
+      min-height: 720px;
+    }
+
+    .pick-best {
+      text-align: center;
+      font-size: 4rem;
+      margin: 70px 0 22px;
+    }
+
+    .votes-box {
+      position: absolute;
+      top: 26px;
+      right: 38px;
+      text-align: center;
+    }
+
+    .votes-box .count {
+      display: block;
+      margin-top: 8px;
+      font-size: 2.3rem;
+      font-weight: bold;
+    }
+
+    .battle-row {
+      display: grid;
+      grid-template-columns: 1fr 120px 1fr;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .song-side {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .album-box {
+      width: 100%;
+      max-width: 3120px; /* 30% bigger than 330px */
+      aspect-ratio: 1 / 1;
+      border: 4px solid #f0df00;
+      background: #f7f7f7;
+      overflow: hidden;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .album-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+    }
+
+    .middle-vs {
+      text-align: center;
+      font-size: 3rem;
+    }
+
+    .song-labels {
+      display: grid;
+      grid-template-columns: 1fr 120px 1fr;
+      margin-top: 12px;
+    }
+
+    .song-text {
+      text-align: center;
+      font-weight: bold;
+      padding: 0 8px;
+    }
+
+    .side-box {
+      border: 4px solid #1597f5;
+      background: #e9e9e9;
+      height: calc(100vh - 28px);
+      padding: 14px;
+      overflow-y: auto;
+    }
+
+    .side-box h2 {
+      margin: 0 0 12px 0;
+      border-bottom: 2px solid #1597f5;
+      padding-bottom: 10px;
+    }
+
+    #playlistList,
+    #rankingList {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    #playlistList li,
+    #rankingList li {
+      margin-bottom: 10px;
+      border: 2px solid #1597f5;
+      background: #fff;
+      padding: 10px;
+    }
+
+    .ranking-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ranking-cover {
+      width: 28px;
+      height: 28px;
+      object-fit: cover;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .ranking-text {
+      min-width: 0;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ranking-text strong {
+      font-weight: bold;
+    }
+
+    .ranking-artist {
+      font-size: 0.85em;
+      opacity: 0.7;
+    }
+
+    .top-song {
+      position: relative;
+      border: 2px solid #ff6a00 !important;
+      background: #fff7ef !important;
+      box-shadow:
+        0 0 6px #ff6a00,
+        0 0 12px orange,
+        0 0 18px red;
+      animation: fireFlicker 1.2s infinite ease-in-out;
+    }
+
+    @keyframes fireFlicker {
+      0% {
+        box-shadow:
+          0 0 4px #ff6a00,
+          0 0 10px orange,
+          0 0 14px red;
+      }
+      50% {
+        box-shadow:
+          0 0 8px #ff6a00,
+          0 0 16px orange,
+          0 0 24px red;
+      }
+      100% {
+        box-shadow:
+          0 0 4px #ff6a00,
+          0 0 10px orange,
+          0 0 14px red;
+      }
+    }
+
+    .export-btn {
+      position: absolute;
+      right: 16px;
+      bottom: 0px;
+      border: 3px solid #a020f0;
+      background: #fff;
+      color: #111;
+      padding: 14px 18px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .export-btn:hover {
+      background: #faf3ff;
+    }
+
+    .export-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 1100px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .left-panel {
+        border-right: none;
+        border-bottom: 3px solid #111;
+      }
+
+      .export-btn {
+        position: static;
+        display: block;
+        margin: 30px auto 0;
+      }
+    }
+    .middle-vs {
+  text-align: center;
+  font-size: 3rem;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ARROWS */
+.arrow {
+  font-size: 3.5rem;
+  font-weight: bold;
+  color: #ff0000;
+  opacity: 1;
+  user-select: none;
+}
+
+.arrow.left {
+  transform: translateX(-10px);
+}
+
+.arrow.right {
+  transform: translateX(10px);
+}
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <section class="left-panel">
+      <div class="top-row">
+        <div class="title-description">
+          <h1>Playlist Ranker</h1>
+          <p>log in with spotify, load your playlists, just keep picking the better songs. when your done youll have a playlist organized by how much you like each song. </p>
+        </div>
+
+        <div class="top-buttons">
+          <button id="loginButton">Log in with Spotify</button>
+          <button id="loadPlaylistsButton">Load Play Lists</button>
+        </div>
+      </div>
+
+      <div class="workspace">
+        <div class="votes-box">
+          votes<br>left
+          <span class="count" id="voteCounter">---</span>
+        </div>
+
+        <div class="pick-best">Pick Best</div>
+
+        <div class="battle-row">
+          <div class="song-side">
+            <div id="buttonA" class="album-box" role="button" tabindex="0" aria-label="Choose left song">
+              <img id="coverA" alt="Album cover A">
+            </div>
+          </div>
+
+          <div class="middle-vs">
+    <div class="arrow left">⬅</div>
+    <div>VS</div>
+    <div class="arrow right">➡</div>
+  </div>
+
+  <div class="song-side">
+    <div id="buttonB" class="album-box">
+      <img id="coverB">
+    </div>
+  </div>
+</div>
+
+        <div class="song-labels">
+          <div id="songA" class="song-text">---</div>
+          <div></div>
+          <div id="songB" class="song-text">---</div>
+        </div>
+
+        <button id="exportButton" class="export-btn">Export New List</button>
+      </div>
+    </section>
+
+    <aside class="right-panel">
+      <div class="side-box">
+        <h2 id="sideTitle">Playlists</h2>
+        <ul id="playlistList"></ul>
+        <ol id="rankingList" class="hidden"></ol>
+      </div>
+    </aside>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
